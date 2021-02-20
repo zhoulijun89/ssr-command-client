@@ -1,161 +1,227 @@
-# The command client of ShadowsocksR based Python3
+# The command client of Shadowsocksr based Python3
 
-在命令行下使用的一款ssr客户端(稳定版)
-
-**此版本为稳定版本，几乎不会更新，除非有bug，如果想尝试更加新的特性请移步至开发版[develop](https://github.com/TyrantLucifer/ssr-command-client/tree/develop)**
+在命令行下使用的一款Shadowsocksr客户端
 
 ## 特性
 
-- 支持订阅链接解析
-- 支持多订阅链接解析
-- 支持指定本地代理端口
-- 支持节点测试ping值
-- 自定义订阅链接
-- 支持测试端口是否被tcp阻断
-- 支持设置开机自启
-- 暂时不支持`ipv6`节点，默认解析节点时会进行屏蔽
+- 全新`2.0`版本，在`1.0`基础上进行使用面向对象重构，并预留接口
+- 支持`Linux` + `Windows`双平台
+- 支持Shadowsocksr链接解析
+- 支持Shadowsocksr订阅链接解析(支持添加多个订阅地址)
+- 支持制定本地端口启动代理
+- 支持测试Shadowsocksr节点真连接延迟(多线程)
+- 支持测试Shadowsocksr节点是否被tcp阻断(多线程)
+- 支持Shadowsocksr节点测速(上传+下载)
+- 支持打印Shadowsocksr节点Json和二维码
+- 整合Shadowsocksr源码到项目中
+- 支持生成基础版clash配置文件 
+- 暂时不支持`ipv6`Shadowsocksr节点，解析时会默认屏蔽
 
 ## 安装方式
 
+- 源码安装
 ```shell
 git clone https://github.com/TyrantLucifer/ssr-command-client.git
 cd ssr-command-client
-pip3 install -r requirement.txt
+python(python3) setup.py install
+```
+
+- pip安装
+```shell
+pip(pip3) install shadowsocksr-cli
 ```
 
 ## 使用方法
+```angular2html
+usage: shadowsocksr-cli [-h] [-l] [-p local_port] [-s ssr_id] [-S [ssr_id]]
+                        [-u] [-v] [--generate-clash] [--display-json ssr_id]
+                        [--test-speed ssr_id] [--fast-node]
+                        [--setting-url ssr_subscribe_url]
+                        [--setting-address ssr_local_address] [--list-url]
+                        [--add-url ssr_subscribe_url]
+                        [--remove-url ssr_subscribe_url] [--list-address]
+                        [--parse-url ssr_url] [--add-ssr ssr_url]
+                        [--test-again ssr_node_id]
+                        [--print-qrcode ssr_node_id] [--setting-global-proxy]
+                        [--setting-pac-proxy] [--close-system-proxy]
+Shadowsocksr 命令行客户端
+
+optional arguments:
+  -v, --version         版本信息
+  -h, --help            帮助信息
+
+通用参数:
+
+-l --list "show ssr list" 打印当前节点列表
+
+-p --port PORT 指定端口，通常与 -s --start 一起使用
+
+-s SSR_NODE_ID 启动Shadowsocks代理，SSR_NODE_ID为节点ID，可从打印列表中获得；
+               如果不指定 -p 参数，那么默认代理启动在本地1080端口
+
+-S [SSR_NODE_ID] 停止Shadowsocks代理，只在Unix环境下生效
+
+-u --update 更新SSR订阅列表
+
+--upgrade 更新ssr-command-client,下载最新版本二进制文件到家目录
+
+--generate-clash 生成clash基础版配置文件
+
+--fast-node 根据节点真连接延迟自动选择最优节点，并在本地启动代理
+
+--test-speed SSR_NODE_ID 根据节点id测试节点上传下载速度
+
+--setting-url SUBSCRIBE_URL 重置ssr订阅链接，SUBSCRIBE_URL为订阅链接地址
+                            注：如果订阅链接中有&符号，请用""将链接括起来
+
+--setting-address LOCAL_ADDRESS 重置本地代理监听地址，默认监听地址为127.0.0.1
+                                一般在想要分享代理给局域网设备的时候使用
+
+--add-url SUBSCRIBE_URL 增加ssr订阅链接，SUBSCRIBE_URL为订阅链接地址
+                        注：如果订阅链接中有&符号，请用""将链接括起来
+
+--remove-url SUBSCRIBE_URL 移除ssr订阅链接，SUBSCRIBE_URL为订阅链接地址
+                           注：如果订阅链接中有&符号，请用""将链接括起来
+
+--list-address 打印当前本地监听地址
+
+--list-url 打印当前已有订阅链接
+
+--parse-url SSR_URL 解析ssr链接，SSR_URL为ssr链接地址，例如：ssr://xxxxxxxxxxxxxxxx
+
+--add-ssr SSR_URL 手动添加ssr节点到当前列表中，SSR_URL为ssr链接地址，例如：ssr://xxxxxxxxxxxxxxxx
+
+--test-again SSR_NODE_ID 重新测试ssr节点连接状态，SSR_NODE_ID为节点ID，可从打印列表中获得
+
+--print-qrcode SSR_NODE_ID 打印ssr节点二维码，SSR_NODE_ID为节点ID，可从打印列表中获得
+
+--setting-global-proxy 设置全局代理为本地socks5代理，注：只支持Ubuntu Desktop
+
+--setting-pac-proxy 设置pac代理，注：只支持Ubuntu Desktop
+
+--close-system-proxy 关闭系统代理选项，注：只支持Ubuntu Desktop
 
 ```
-python3 main.py [OPTIONS]
 
-OPTIONS
+## 简单示例
 
--l --list "show ssr list" 展示ssr节点列表
--s --start "start ssr proxy" 启动ssr代理服务
--S --stop "stop ssr proxy" 停止ssr代理服务
--p --port port "assign local port" 指定本地代理端口
--c --config ssr_node_id "generate config json file" 生成指定节点json文件
--u --update "update ssr list" 更新ssr节点列表(需要sudo权限)
---fast-node "generate fast ssr config json file" 生成最快节点json文件
---setting-url "set ssr subscribe url" 重置ssr订阅链接
---setting-address "set ssr local address" 设置ssr本地代理地址
---add-url "add ssr subscribe url" 增加ssr订阅链接
---remove-url "remove ssr subscribe url" 移除ssr订阅链接
---list-url "display ssr subscribe url" 显示当前ssr订阅链接
---list-address "display ssr local address" 显示当前ssr本地代理地址
---parse-url "parse ssr url" 解析ssr链接(需要sudo权限)
---add-ssr "add ssr node" 添加ssr节点(需要sudo权限)
---test-again ssr_node_id "test ssr node again" 重新测试节点延迟及端口状态(需要sudo权限)
---setting-pac-proxy "setting system pac proxy,only support Ubuntu Desktop" 设置系统代理模式为pac代理，注：仅支持Ubuntu桌面系统
---setting-global-proxy "setting system global proxy,only support Ubuntu Desktop" 设置系统代理模式为全局代理，注：仅支持Ubuntu桌面系统
---close-system-proxy "close system proxy,only support Ubuntu Desktop" 关闭系统代理，注：仅支持Ubuntu桌面系统
---setting-auto-start "setting ssr auto start" 设置开机自启
--v --version "display version" 显示当前版本
+```angular2html
+假设你的订阅链接节点列表为如下：
++----+----------------------------+-----------+---------+----------------+------+-------------+
+| id |            name            | delay(ms) | connect |     server     | port |    method   |
++----+----------------------------+-----------+---------+----------------+------+-------------+
+| 0  |    SSRTOOL_Node:新加坡-    |     100     |    √    | 172.104.161.54 | 8099 | aes-256-cfb |
+| 1  | SSRTOOL_Node:美国-密苏里州  |     200     |    √    |  69.30.201.82  | 8099 | aes-256-cfb |
++----+----------------------------+-----------+---------+----------------+------+-------------+
+```
+- 开启美国节点代理` shadowsocksr-cli -s 1`
+- 打印节点列表` shadowsocksr-cli -l`
+- 更新订阅列表` shadowsocksr-cli -u`
+- 重置订阅链接` shadowsocksr-cli --setting-url https://tyrantlucifer.com/ssr/ssr.txt`
+- 查看订阅链接列表` shadowsocksr-cli --list-url`
+- 查看本地监听地址` shadowsocksr-cli --list-adderss`
+
+## API
+
+- 通过shadowsocksr链接解析节点信息
+
+```python
+import json
+from shadowsocksr_cli.parse_utils import *
+
+ssr_url = "ssr://NjkuMzAuMjAxLjgyOjgwOTk6b3JpZ2luOmFlcy0yNTYtY2ZiOnBsYWluOlpVbFhNRVJ1YXpZNU5EVTBaVFp1VTNkMWMzQjJPVVJ0VXpJd01YUlJNRVEvP3JlbWFya3M9VTFOU1ZFOVBURjlPYjJSbE91ZS1qdVdidlMzbHI0Ym9pNF9waDR6bHQ1NCZncm91cD1WMWRYTGxOVFVsUlBUMHd1UTA5Tg"
+ssr_dict = ParseShadowsocksr.parse_shadowsocksr(ssr_url)
+print(json.dumps(ssr_dict,
+                 ensure_ascii=False,
+                 indent=4))
 ```
 
-## 效果展示
+- 通过shadowsocksr链接测试节点服务器和端口是否连通
+```python
+from shadowsocksr_cli.parse_utils import *
+from shadowsocksr_cli.network_test_utils import *
 
-- 输出ssr链接节点列表 python3 main.py -l，新版本的`ssr-command-client`更新列表需要`sudo`权限，如果以普通用户运行，请加`sudo`
-
-![](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/20200315024222.png)
-
-- 更新ssr订阅链接 python3 main.py -u
-
-![](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/20200315024425.png)
-
-- 生成ssr节点配置文件 python3 main.py -c `ssr_node_id`
-
-![](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/20200315023538.png)
-
-
-- 启动ssr代理 python3 main.py -s
-
-![](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/20200315023617.png)
-
-- 停止ssr代理 python3 main.py -S
-
-![](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/20200315023654.png)
-
-## 更新ssr-command-client
-
-``` shell
-git pull
-pip3 install -r requirement.txt
+ssr_url = "ssr://NjkuMzAuMjAxLjgyOjgwOTk6b3JpZ2luOmFlcy0yNTYtY2ZiOnBsYWluOlpVbFhNRVJ1YXpZNU5EVTBaVFp1VTNkMWMzQjJPVVJ0VXpJd01YUlJNRVEvP3JlbWFya3M9VTFOU1ZFOVBURjlPYjJSbE91ZS1qdVdidlMzbHI0Ym9pNF9waDR6bHQ1NCZncm91cD1WMWRYTGxOVFVsUlBUMHd1UTA5Tg"
+ssr_dict = ParseShadowsocksr.parse_shadowsocksr(ssr_url)
+ssr_dict = ShadowsocksrTest.test_shadowsocksr_connect(ssr_dict)
+print(ssr_dict['connect'],
+      ssr_dict['ping'])
 ```
 
+- 通过shadowsocksr链接测试节点上传+下载速度
+```python
+from shadowsocksr_cli.parse_utils import *
+from shadowsocksr_cli.network_test_utils import *
 
-## Linux命令行设置代理方法
-
-``` shell
-export ALL_PROXY=socks5://127.0.0.1:1080 # 设置代理
-unset ALL_PROXY # 关闭代理
-curl http://ip-api.com/json/?lang=zh-CN # 查看当前ip归属地
+ssr_url = "ssr://NjkuMzAuMjAxLjgyOjgwOTk6b3JpZ2luOmFlcy0yNTYtY2ZiOnBsYWluOlpVbFhNRVJ1YXpZNU5EVTBaVFp1VTNkMWMzQjJPVVJ0VXpJd01YUlJNRVEvP3JlbWFya3M9VTFOU1ZFOVBURjlPYjJSbE91ZS1qdVdidlMzbHI0Ym9pNF9waDR6bHQ1NCZncm91cD1WMWRYTGxOVFVsUlBUMHd1UTA5Tg"
+ssr_dict = ParseShadowsocksr.parse_shadowsocksr(ssr_url)
+ssr_dict = ShadowsocksrTest.test_shadowsocksr_connect(ssr_dict)
+ShadowsocksrTest.test_shadowsocksr_speed(ssr_dict)
 ```
-如果想要方便的使用命令开关代理，可以将以下内容加入到自己的shell环境文件中：
-``` shell
+
+## Linux终端设置代理方法
+
+- 终端设置代理`export ALL_PROXY=socks5://127.0.0.1:1080`
+- 查看代理是否设置成功`curl http://ip-api.com/json/?lang=zh-CN`
+- 取消终端代理`unset ALL_PROXY`
+- 如果想要更加方便的使用快捷命令，将以下内容添加到你家目录中的`.bashrc`中，然后执行`source ~/.bashrc`
+```shell
 alias setproxy="export ALL_PROXY=socks5://127.0.0.1:1080"
 alias unsetproxy="unset ALL_PROXY"
 alias ip="curl http://ip-api.com/json/?lang=zh-CN"
 ```
-这样下面这几个命令就会有以下功能：
+```angular2html
+这样以下几个命令就会实现如下功能：
 
-`setproxy` 开启代理
-
-`unsetproxy` 关闭代理
-
-`ip` 查看ip归属地
-
-## 未来计划
-
-- [x] ~支持多订阅链接解析~
-- [x] ~支持自动选择速度最优节点~
-- [x] ~支持命令行解析ssr链接信息~
-- [x] ~支持使用ssr链接添加节点~
-- [x] ~支持自动生成PAC代理文件~
-- [x] ~支持一键关闭、开启系统PAC网络代理(针对于Ubuntu 18.04)~
+setproxy 开启代理
+unsetproxy 关闭代理
+ip 查看ip归属地
+```
 
 ## 常见问题
 
 - 我的代理打开了，为什么还是翻不出去？
-
-> ssr-command-client的实质是使用Python版本的ssr开启了一个本地socks5代理，并没有实现自动分流和开启代理的功能，要想知道自己有没有开启成功，看上面使用方法章节，学习如何命令行设置socks5代理
+> ssr-command-client的实质是使用Python版本的ssr开启了一个本地socks5代理，并没有实现自动分流和开启代理的功能，要想知道自己有没有开启成功，看上面使用方法章节，Linux学习如何命令行设置socks5代理，Windows学习如何在浏览器设置socks5代理
 
 - 我的按照那几条命令查看了我的ip和设置了代理，都成功了，可是我执行`wget www.google.com`怎么还是不行？
+> 命令行虽然设置好代理了，但是默认用的是我们本地的dns，没有用socks5代理的dns，国内早把google给污染了，google被解析到一个鬼一样的ip上，你说它咋能成功呢？你要是非要想用这种方法测试，使用curl --proxy socks5h://127.0.0.1:1080 www.google.com去查看是否有输出内容
 
-> 命令行虽然设置好代理了，但是默认用的是我们本地的dns，没有用socks5代理的dns，国内早把google给污染了，google被解析到一个鬼一样的ip上，你说它咋能成功呢？你要是非要想用这种方法测试，使用`curl --proxy socks5h://127.0.0.1:1080 www.google.com`去查看是否有输出内容
+- 针对Ubuntu Desktop用户的一些通知：
+> 目前项目已经支持设置网络全局代理和pac代理，但是pac代理使用的file://协议指向的文件，新版chrome已经不支持这种协议的pac文件了，所以在设置完pac代理之后，chrome无法扶墙出去，但是火狐可以，如果chrome也想扶墙出去，建议使用SwitchyOmega插件进行分流，或者本地搭建一个http服务器，然后将`~/.ssr-command-client`下自动生成的autoproxy.pac扔到网站目录里去，在系统设置里把file://协议设置成http://协议即可
 
-- 针对Ubuntu桌面用户的一些通知
-
-> 目前项目已经支持设置网络全局代理和pac代理，但是pac代理使用的`file://`协议指向的文件，新版chrome已经不支持这种协议的pac文件了，所以在设置完pac代理之后，chrome无法扶墙出去，但是火狐可以，如果chrome也想扶墙出去，建议使用`SwitchyOmega`插件进行分流，或者本地搭建一个http服务器，然后将项目目录下自动生成的autoproxy.pac扔到网站目录里去，在系统设置里把`file://`协议设置成`http://`协议即可
-
-- 设置完开机自启之后，如何更加爽快的启动服务？
-
-> (sudo) systemctl start ssr 启动ssr
-
-> (sudo) systemctl stop ssr 停止ssr
-
-> (sudo) systemctl restart ssr 重启ssr
-
-- 作者的几句话
+## 作者的几句话
 
 > 1. ok，我开发这个东西是为了让自己服务器访问github的速度更加快一点而开发的，目的单纯是为了让coding更加顺畅一些。
+> 2. 本客户端不适合小白用，需要有一些Linux基础或者有命令行终端使用经验的人来用，小白就不要来找我了好吗？
+> 3. 我曾经写过几篇关于telegram的脚本和教程，但是不代表我会替人搭建或者买卖代理，小白也不要关注我公众号然后丢给我一句telegram代理、求telegram代理，我不是逗比，我没那个时间照顾小白情绪，不懂请绕路。
+> 4. 因为最近工作和学习原因，公众号很少更新，流失了很多粉丝，但也无可奈何，希望大家能多多理解，不要取关，以后会更新更多精品内容。
+> 5. `fork`的大哥们能否在`fork`之前给个`star`
 
-> 2. 本客户端不适合小白用，需要有一些Linux基础的人来用，小白就不要来找我了好吗？
+## 支持开源:heart:, 请作者喝杯星巴克
 
-> 3. 我曾经写过几篇关于`telegram`的脚本和教程，但是不代表我会替人搭建或者买卖代理，小白也不要关注我公众号然后丢给我一句`telegram代理`、`求telegram代理`，我不是逗比，我没那个时间照顾小白情绪，不懂请绕路。
+> 有意愿献爱心的小伙伴，务必将github账号写入捐款备注哦，谢谢大家
 
-> 4. 因为最近工作和学习原因，公众号很少更新，流失了很多粉丝，但也无可奈何，希望大家能多多理解。
-
-> 5. `fork`的大哥们能否在`fork`之前给个`star` 
+| wechat                                                                                                     | alipay                                                                                                       |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| <a href='#支持开源'><img src="https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/wechat-pay.png" height="150" width="150" /></a> | <a href='#支持开源'><img src="https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/alipay.jpg" height="150" width="150" /></a> |
 
 ## Tips
 
 如果有好的建议，欢迎发邮件给我，或者关注下方我的个人微信公众号在后台留言，或者加qq群`764374820`反馈
 
-- Email:Tyrantlucifer@gmail.com
+- Email:Tyrantlucifer@gmail.com 
 - Blog:https://tyrantlucifer.com
 - Telegram:https://t.me/ssr_command_client
 - Personal Wechat
 
-![我的微信公众号](https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/wechat.jpg)
+|微信公众号|
+|---------|
+|<a href='#Tips'><img src="https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/wechat.jpg" height="300" width="300" /></a> |
 
+## 致谢
+
+感谢Jetbrains给予开发本项目的正版工具支持，如果有商业需求，推荐购买正版[Jetbrains](https://www.jetbrains.com/?from=ssr-command-client)
+
+|Jetbrains|
+|---------|
+|<a href='#致谢'><img src="https://cdn.jsdelivr.net/gh/TyrantLucifer/MyImageRepository/img/jetbrains-variant-2.png" height="300" width="300" /></a> |
